@@ -5,11 +5,23 @@ const initialItems = [
   { id: 2, description: "Socks", quantity: 12, packed: false },
 ];
 export default function App() {
+  const [item, setItem] = useState([])
+function handlerAddItem(item) {
+    setItem(items=>[...items,item])
+}
+  function handlerDeleteItem(id) {
+    setItem(items=>items.filter(item=>item.id!==id))
+  }
 
+  function updatePacked(id) {
+    setItem(items => items.map(item => item.id === id ?
+      {...item,packed: !item.packed}:item
+    ))
+  }
   return <div className="app">
     <Logo />
-    <Form />
-    <PackingList />
+    <Form onAddItem={handlerAddItem} />
+    <PackingList item={item} key={item.id} onDeleteItem={ handlerDeleteItem} onUpdatePacked={updatePacked} />
     <Stats />
   </div>
 }
@@ -18,14 +30,17 @@ function Logo() {
     <h1>🏝️ Far Away 🧳</h1>
   )
 }
-function Form() {
+function Form({onAddItem}) {
   const [description, setDescription] = useState('')
   const [select, setSelect] = useState(1)
+
+  
   
   function handlerSubmit(e) {
     e.preventDefault()
     if (!description) return;
     const newItem = { description, select, packed: false, id: Date.now() }
+    onAddItem(newItem);
     console.log(newItem);
     setDescription('')
     setSelect(1)
@@ -54,26 +69,31 @@ function Form() {
     
     </form>
 }
-function PackingList() {
+function PackingList({item,onDeleteItem,onUpdatePacked}) {
   return (
     <div className="list">
     <ul>
-      {initialItems.map((item) => (
-        <Item item={item} />
+      {item.map((item) => (
+        <Item item={item} onDeleteItem={ onDeleteItem} onUpdatePacked={onUpdatePacked} />
 
        ))}
     </ul>
   </div>
   );
 }
-function Item({ item }) {
+function Item({ item,onDeleteItem,onUpdatePacked }) {
   return(<li>
-          <input type="checkbox" checked={item.packed }></input>
-    <span style={item.packed? {textDecoration:'line-through'}:{}}>
-      {' '}
+    <input
+      type="checkbox"
+      value={item.packed}
+      onChange={
+      () => onUpdatePacked(item.id)
+          }/>
+    <span style={item.packed ? {textDecoration:'line-through'}:{}}>
+  
       {item.quantity}
          {item.description}</span>
-          <button className="button">❌</button>
+          <button className="button" onClick={()=>onDeleteItem(item.id)}>❌</button>
         </li>)
   
 }
