@@ -19,10 +19,15 @@ function handlerAddItem(item) {
       {...item,packed: !item.packed}:item
     ))
   }
+  function deleteAllItems() {
+    setItem([])
+  }
   return <div className="app">
     <Logo />
     <Form onAddItem={handlerAddItem} />
-    <PackingList item={item} key={item.id} onDeleteItem={ handlerDeleteItem} onUpdatePacked={updatePacked} />
+    <PackingList item={item} key={item.id} onDeleteItem={handlerDeleteItem}
+      onUpdatePacked={updatePacked}
+      onDeleteAllItems={ deleteAllItems} />
     <Stats numItems={numItems} packedItems={packedItems} itemPercent={itemPercent } />
   </div>
 }
@@ -70,7 +75,7 @@ function Form({onAddItem}) {
     
     </form>
 }
-function PackingList({ item, onDeleteItem, onUpdatePacked }) {
+function PackingList({ item, onDeleteItem, onUpdatePacked,onDeleteAllItems }) {
   const [sort, setSort] = useState('input')
   let sortItems;
   if (sort === 'input') sortItems = item
@@ -92,6 +97,7 @@ function PackingList({ item, onDeleteItem, onUpdatePacked }) {
         <option value='packed'>Sort by packed</option>
 
         </select>
+        <button onClick={onDeleteAllItems}>Clear All</button>
         </div>
   </div>
   );
