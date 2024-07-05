@@ -1,11 +1,12 @@
 import { useState } from "react";
 
-const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: false },
-];
+
 export default function App() {
   const [item, setItem] = useState([])
+  const numItems = item.length;
+  const packedItemAll = (item.filter(item => item.packed === true))
+  const packedItems = packedItemAll.length
+  const itemPercent=((packedItems/numItems)*100).toFixed(0)
 function handlerAddItem(item) {
     setItem(items=>[...items,item])
 }
@@ -22,7 +23,7 @@ function handlerAddItem(item) {
     <Logo />
     <Form onAddItem={handlerAddItem} />
     <PackingList item={item} key={item.id} onDeleteItem={ handlerDeleteItem} onUpdatePacked={updatePacked} />
-    <Stats />
+    <Stats numItems={numItems} packedItems={packedItems} itemPercent={itemPercent } />
   </div>
 }
 function Logo() {
@@ -69,15 +70,29 @@ function Form({onAddItem}) {
     
     </form>
 }
-function PackingList({item,onDeleteItem,onUpdatePacked}) {
+function PackingList({ item, onDeleteItem, onUpdatePacked }) {
+  const [sort, setSort] = useState('input')
+  let sortItems;
+  if (sort === 'input') sortItems = item
+  if(sort==='description') sortItems=item.slice().sort((a,b)=>a.description.localeCompare(b.description))
+  if(sort==='packed') sortItems=item.slice().sort((a,b)=>Number(a.packed)-Number(b.packed))
+  
   return (
     <div className="list">
     <ul>
-      {item.map((item) => (
+      {sortItems.map((item) => (
         <Item item={item} onDeleteItem={ onDeleteItem} onUpdatePacked={onUpdatePacked} />
 
        ))}
-    </ul>
+      </ul>
+      <div className="actions">
+      <select  value={sort} onChange={e=>setSort(e.target.value)}>
+        <option value='input'>Sort by input</option>
+        <option value='description'>Sort by description</option>
+        <option value='packed'>Sort by packed</option>
+
+        </select>
+        </div>
   </div>
   );
 }
@@ -98,10 +113,10 @@ function Item({ item,onDeleteItem,onUpdatePacked }) {
   
 }
 
-function Stats() {
+function Stats({numItems,packedItems,itemPercent}) {
   return <footer className="stats">
     <em>
-    💼 You have X items on your list and you already packed X (X%)
+    💼 You have {numItems} items on your list and you already packed {packedItems} ({itemPercent}%)
   </em>
   </footer>
 }
